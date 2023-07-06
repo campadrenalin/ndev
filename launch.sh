@@ -7,9 +7,8 @@ DOCKER_NIX_STORE_MOUNT=nix-store
 DOCKER_CONTAINER_NAME=ndev
 DOCKER_APP_SOURCE=./sample-app
 
-docker build -t ndev .
-
-docker network create -d bridge "$DOCKER_NETWORK_NAME"
+docker network inspect "$DOCKER_NETWORK_NAME" > /dev/null || \
+	docker network create -d bridge "$DOCKER_NETWORK_NAME"
 
 # TODO: Connect to existing container if it exists
 exec docker run --rm -it \
