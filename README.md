@@ -10,10 +10,10 @@ Generic nix-based development environment.
  - [x] Preserve a persistent /nix/store/ across launches.
  - [x] Mount an app's source code
  - [x] Run nix-shell on launch
+ - [x] Optimize the process of building a shell derivation at runtime
  - [ ] Handle file ownership correctly
  - [ ] Host launch script should use arguments instead of magic constants
  - [ ] Polish the experience of using ndev from another codebase
- - [ ] Optimize the process of building a shell derivation at runtime
 
 ### Demo
 
