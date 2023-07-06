@@ -10,8 +10,7 @@ DOCKER_APP_SOURCE=./sample-app
 DOCKER_IMAGE="ndev"
 
 build() {
-DOCKER_BUILDKIT=1 docker build -t "$DOCKER_IMAGE" - <<'EOF'
-# syntax=docker/dockerfile:1.3-labs
+docker build -t "$DOCKER_IMAGE" - <<'EOF'
 FROM nixos/nix
 RUN nix-channel --update
 
