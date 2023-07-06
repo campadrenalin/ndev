@@ -70,7 +70,10 @@ regular basis. It *should* be simple and portable.
 git clone git@github.com:campadrenalin/ndev.git
 cd ndev
 
+# You would typically use .envrc or a wrapper script for config.
+# We'll just do a quick and dirty demo here.
 export NDEV_APP_SOURCE=./sample-app
+export NDEV_NETWORK_NAME='sample-app-network'
 
 ./nd
 
