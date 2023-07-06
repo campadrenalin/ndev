@@ -12,9 +12,13 @@ Generic nix-based development environment.
  - [x] Run nix-shell on launch
  - [x] Optimize the process of building a shell derivation at runtime
  - [x] Standalone script that can be curl'd and used immediately
- - [ ] Handle file ownership correctly
- - [ ] Host launch script should use arguments instead of magic constants
+ - [x] Handle file ownership correctly (seems to work?)
+ - [x] Host launch script should use customizable env variables
  - [ ] Polish the experience of using ndev from another codebase
+  - [x] Primitive `$SSH_AUTH_SOCK` support (currently OS X only)
+  - [ ] Ability to talk to custom Docker registries
+  - [ ] Preserve command history
+  - [ ] Possibly find a solution for global git config?
 
 ### Demo
 

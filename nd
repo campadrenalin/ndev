@@ -1,38 +1,42 @@
 #!/bin/bash
 set -e
 
-DOCKER_SOCKET_PATH=/var/run/docker.sock
-DOCKER_NETWORK_NAME=sample-app-network
-DOCKER_NIX_STORE_MOUNT=nix-store
-DOCKER_NIX_DB_MOUNT=nix-db
-DOCKER_CONTAINER_NAME=ndev
-DOCKER_APP_SOURCE=./sample-app
-DOCKER_IMAGE="ndev"
+# Set default configuration
+: "${NDEV_SOCKET_PATH:=/var/run/docker.sock}"
+: "${NDEV_NETWORK_NAME:=ndev-network}"
+: "${NDEV_NIX_STORE_MOUNT:=nix-store}"
+: "${NDEV_NIX_DB_MOUNT:=nix-db}"
+: "${NDEV_CONTAINER_NAME:=ndev}"
+: "${NDEV_APP_SOURCE:=./sample-app}"
+: "${NDEV_IMAGE:=ndev}"
 
 build() {
-docker build -t "$DOCKER_IMAGE" - <<'EOF'
+docker build -t "$NDEV_IMAGE" - <<'EOF'
 FROM nixos/nix
 RUN nix-channel --update
 
 WORKDIR /app/
 RUN mkdir -p /app/bin/
+
+ENV SSH_AUTH_SOCK=/ssh-agent
 EOF
 }
 
 launch() {
-	docker image inspect "$DOCKER_IMAGE" > /dev/null || build
+	docker image inspect "$NDEV_IMAGE" > /dev/null || build
 
-	docker network inspect "$DOCKER_NETWORK_NAME" > /dev/null || \
-		docker network create -d bridge "$DOCKER_NETWORK_NAME"
+	docker network inspect "$NDEV_NETWORK_NAME" > /dev/null || \
+		docker network create -d bridge "$NDEV_NETWORK_NAME"
 
 	# TODO: Connect to existing container if it exists
 	exec docker run --rm -it \
-		--network=$DOCKER_NETWORK_NAME \
-		--mount "type=bind,src=${DOCKER_SOCKET_PATH},target=/var/run/docker.sock" \
-		--mount "type=bind,src=${DOCKER_APP_SOURCE},target=/app/" \
-		--mount "type=volume,src=${DOCKER_NIX_STORE_MOUNT},target=/nix/store/" \
-		--mount "type=volume,src=${DOCKER_NIX_DB_MOUNT},target=/nix/var/nix/db/" \
-		"$DOCKER_IMAGE" nix-shell "$@"
+		--network=$NDEV_NETWORK_NAME \
+		--mount "type=bind,src=${NDEV_SOCKET_PATH},target=/var/run/docker.sock" \
+		--mount "type=bind,src=${NDEV_APP_SOURCE},target=/app/" \
+		--mount "type=bind,src=/run/host-services/ssh-auth.sock,target=/ssh-agent" \
+		--mount "type=volume,src=${NDEV_NIX_STORE_MOUNT},target=/nix/store/" \
+		--mount "type=volume,src=${NDEV_NIX_DB_MOUNT},target=/nix/var/nix/db/" \
+		"$NDEV_IMAGE" nix-shell "$@"
 }
 
 solo() {
