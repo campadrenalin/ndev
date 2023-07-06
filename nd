@@ -7,8 +7,14 @@ set -e
 : "${NDEV_NIX_STORE_MOUNT:=nix-store}"
 : "${NDEV_NIX_DB_MOUNT:=nix-db}"
 : "${NDEV_CONTAINER_NAME:=ndev}"
-: "${NDEV_APP_SOURCE:=./sample-app}"
+: "${NDEV_APP_SOURCE:=$PWD}"
 : "${NDEV_IMAGE:=ndev}"
+
+debug() {
+	compgen -v | grep '^NDEV_' | while read param; do
+		echo "$param=${!param}";
+	done
+}
 
 build() {
 docker build -t "$NDEV_IMAGE" - <<'EOF'
@@ -19,6 +25,27 @@ WORKDIR /app/
 RUN mkdir -p /app/bin/
 
 ENV SSH_AUTH_SOCK=/ssh-agent
+EOF
+}
+
+sample_shell_nix() {
+cat <<'EOF'
+{ pkgs ? import <nixpkgs> {} }:
+
+pkgs.mkShell {
+
+  buildInputs = [
+    pkgs.bash
+    pkgs.docker
+    pkgs.docker-compose
+    pkgs.git
+    pkgs.vim
+  ];
+
+  shellHook = ''
+    echo "git:  $(git  --version)"
+  '';
+}
 EOF
 }
 
@@ -44,14 +71,21 @@ solo() {
 }
 
 usage() {
-	echo 'nd build # Regenerate container' >&2
-	echo 'nd solo # Run a standalone container' >&2
-	echo 'nd solo --command foo # Run a command in a standalone container' >&2
-	echo 'nd usage # This text' >&2
+	echo 'nd --usage       # This text' >&2
+	echo 'nd --build       # Regenerate container' >&2
+	echo 'nd --example     # Sample shell.nix' >&2
+	echo 'nd --debug       # Show variables' >&2
+	echo 'nd               # Run a standalone container' >&2
+	echo 'nd --command foo # Run a command in a standalone container' >&2
 }
 
 case "$1" in
-	build) build;;
-	solo) shift; solo "$@";;
-	*) usage;;
+	--usage) usage;;
+	--help) usage;;
+	-h) usage;;
+
+	--build) build;;
+	--example) sample_shell_nix;;
+	--debug) debug;;
+	*) solo "$@";;
 esac

@@ -26,7 +26,9 @@ Generic nix-based development environment.
 git clone git@github.com:campadrenalin/ndev.git
 cd ndev
 
-./nd build && ./nd solo
+export NDEV_APP_SOURCE=./sample-app
+
+./nd
 
 # Wait for container to be ready
 docker-compose up -d
