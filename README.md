@@ -14,3 +14,19 @@ Generic nix-based development environment.
  - [ ] Host launch script should use arguments instead of magic constants
  - [ ] Polish the experience of using ndev from another codebase
  - [ ] Optimize the process of building a shell derivation at runtime
+
+### Demo
+
+```bash
+git clone git@github.com:campadrenalin/ndev.git
+cd ndev
+
+./build.sh
+./launch.sh
+
+# Wait for container to be ready
+docker-compose up -d
+redis-cli -h redis
+
+# Poke around at http://localhost:8000/ in your browser :)
+```
