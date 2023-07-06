@@ -11,6 +11,7 @@ Generic nix-based development environment.
  - [x] Mount an app's source code
  - [x] Run nix-shell on launch
  - [x] Optimize the process of building a shell derivation at runtime
+ - [x] Standalone script that can be curl'd and used immediately
  - [ ] Handle file ownership correctly
  - [ ] Host launch script should use arguments instead of magic constants
  - [ ] Polish the experience of using ndev from another codebase
@@ -21,8 +22,7 @@ Generic nix-based development environment.
 git clone git@github.com:campadrenalin/ndev.git
 cd ndev
 
-./build.sh
-./launch.sh
+./nd build && ./nd solo
 
 # Wait for container to be ready
 docker-compose up -d
