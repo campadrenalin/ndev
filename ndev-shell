@@ -1,7 +1,0 @@
-#!/bin/sh
-
-if [ -e shell.nix ]; then
-	exec nix-shell
-else
-	echo "Expected /app/shell.nix"
-fi

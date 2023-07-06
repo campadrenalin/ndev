@@ -1,0 +1,54 @@
+#!/bin/bash
+set -e
+
+DOCKER_SOCKET_PATH=/var/run/docker.sock
+DOCKER_NETWORK_NAME=sample-app-network
+DOCKER_NIX_STORE_MOUNT=nix-store
+DOCKER_NIX_DB_MOUNT=nix-db
+DOCKER_CONTAINER_NAME=ndev
+DOCKER_APP_SOURCE=./sample-app
+DOCKER_IMAGE="ndev"
+
+build() {
+DOCKER_BUILDKIT=1 docker build -t "$DOCKER_IMAGE" - <<'EOF'
+# syntax=docker/dockerfile:1.3-labs
+FROM nixos/nix
+RUN nix-channel --update
+
+WORKDIR /app/
+RUN mkdir -p /app/bin/
+EOF
+}
+
+launch() {
+	docker image inspect "$DOCKER_IMAGE" > /dev/null || build
+
+	docker network inspect "$DOCKER_NETWORK_NAME" > /dev/null || \
+		docker network create -d bridge "$DOCKER_NETWORK_NAME"
+
+	# TODO: Connect to existing container if it exists
+	exec docker run --rm -it \
+		--network=$DOCKER_NETWORK_NAME \
+		--mount "type=bind,src=${DOCKER_SOCKET_PATH},target=/var/run/docker.sock" \
+		--mount "type=bind,src=${DOCKER_APP_SOURCE},target=/app/" \
+		--mount "type=volume,src=${DOCKER_NIX_STORE_MOUNT},target=/nix/store/" \
+		--mount "type=volume,src=${DOCKER_NIX_DB_MOUNT},target=/nix/var/nix/db/" \
+		"$DOCKER_IMAGE" nix-shell "$@"
+}
+
+solo() {
+	launch "$@"
+}
+
+usage() {
+	echo 'nd build # Regenerate container' >&2
+	echo 'nd solo # Run a standalone container' >&2
+	echo 'nd solo --command foo # Run a command in a standalone container' >&2
+	echo 'nd usage # This text' >&2
+}
+
+case "$1" in
+	build) build;;
+	solo) shift; solo "$@";;
+	*) usage;;
+esac
