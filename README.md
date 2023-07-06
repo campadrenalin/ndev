@@ -36,7 +36,7 @@ The `nd` script is self-contained and can be "installed" trivially:
 
 ```bash
 INSTALL_LOCATION=~/bin/nd # Pick somewhere in your PATH
-curl https://github.com/campadrenalin/ndev/blob/main/nd > $INSTALL_LOCATION
+curl https://raw.githubusercontent.com/campadrenalin/ndev/main/nd > $INSTALL_LOCATION
 chmod +x $INSTALL_LOCATION
 ```
 
